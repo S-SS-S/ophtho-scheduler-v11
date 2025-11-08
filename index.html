@@ -14,11 +14,10 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    html { scroll-behavior: smooth; } /* removed 130% increase */
+    html { scroll-behavior: smooth; } /* default 100% */
     .error-text{color:#dc2626;font-size:12px;margin-top:.25rem}
     .invalid{outline:0;box-shadow:0 0 0 4px rgba(244,63,94,.25);border-color:#ef4444}
     @media print{html{color-scheme:light}body{background:#fff!important}.no-print{display:none!important}}
-    /* minimal slider tweaks */
     input[type="range"]{accent-color: currentColor;}
   </style>
 </head>
@@ -37,12 +36,15 @@
           <span class="mx-1">/</span>
           <button id="theme-dark" type="button" onclick="setTheme('dark')">Dark</button>
         </div>
-        <!-- Text size slider (added) -->
-        <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm border border-slate-300 bg-white dark:bg-slate-800 dark:border-slate-600" title="Text size">
-          <span aria-hidden="true" class="select-none">A−</span>
-          <input id="fontScale" dir="ltr" type="range" min="80" max="170" step="5" value="100" class="w-28 align-middle" oninput="setFontScale(this.value)" />
-          <span aria-hidden="true" class="select-none">A+</span>
-          <span id="fontPct" class="tabular-nums min-w-[3ch] text-xs text-slate-600 dark:text-slate-300">100%</span>
+        <!-- Text size slider -->
+        <div class="flex flex-col">
+          <div id="fontControls" dir="ltr" class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm border border-slate-300 bg-white dark:bg-slate-800 dark:border-slate-600" title="Text size">
+            <span id="fontMinus" class="select-none">A−</span>
+            <input id="fontScale" dir="ltr" type="range" min="80" max="170" step="5" value="100" class="w-28 align-middle" oninput="setFontScale(this.value)" />
+            <span id="fontPlus" class="select-none">A+</span>
+            <span id="fontPct" class="tabular-nums min-w-[3ch] text-xs text-slate-600 dark:text-slate-300">100%</span>
+          </div>
+          <div id="fontHelp" class="text-[11px] text-slate-600 dark:text-slate-300 mt-1"></div>
         </div>
         <!-- /Text size slider -->
       </div>
@@ -139,7 +141,7 @@
               <label class="inline-flex items-center gap-2 text-sm"><input type="radio" name="dmSeverity" value="severe" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" /><span id="optSevere">شديد (زيارة خلال 3 أشهر)</span></label>
               <label class="inline-flex items-center gap-2 text-sm"><input type="radio" name="dmSeverity" value="moderate" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" /><span id="optModerate">متوسط (خلال 6 أشهر)</span></label>
               <label class="inline-flex items-center gap-2 text-sm"><input type="radio" name="dmSeverity" value="mild" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" /><span id="optMild">بسيط (خلال 9 أشهر)</span></label>
-              <label class="inline-flex items-center gap-2 text-sm"><input type="radio" name="dmSeverity" value="unknown" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" /><span id="optUnknown">لا أعرف (زيارة خلال سنة)</span></label>
+              <label class="inline-flex items-center gap-2 text-sm"><input type="radio" name="dmSeverity" value="unknown" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" /><span id="optUnknown">لا أعرف (سنة واحدة)</span></label>
             </div>
           </div>
 
@@ -239,7 +241,10 @@
            glauSus:"مشتبه ماء أزرق / ارتفاع ضغط العين", fhGlau:"قرابة درجة أولى لمريض ماء أزرق",
            highMy:"قصر نظر شديد (≤ −6.0D أو طول محوري > 26 مم)",
            ted:"مرض عين درقي (غريفز)", noRisk:"بالغون بلا عوامل خطورة",
-           retLaser:"إجراء ليزر للشبكية" }
+           retLaser:"إجراء ليزر للشبكية" },
+      fontMinus:"أ−",
+      fontPlus:"أ+",
+      fontHelp:"حرّك المؤشر لضبط حجم النص."
     },
     en: {
       title:"Ophthalmology Visit Scheduler",
@@ -277,7 +282,10 @@
            glauSus:"Glaucoma suspect / ocular hypertension", fhGlau:"First-degree relative of glaucoma",
            highMy:"High myopia (≤ −6.0D or axial length > 26 mm)",
            ted:"Thyroid eye disease (Graves)", noRisk:"Adults without known risk factors",
-           retLaser:"Undergone retinal laser" }
+           retLaser:"Undergone retinal laser" },
+      fontMinus:"A−",
+      fontPlus:"A+",
+      fontHelp:"Use the slider to adjust text size."
     }
   };
 
@@ -338,6 +346,11 @@
     setText('tx_ted', TR[currentLang].tx.ted);
     setText('tx_retLaser', TR[currentLang].tx.retLaser);
     setText('tx_noRisk', TR[currentLang].tx.noRisk);
+
+    // Font slider labels/help
+    setText('fontMinus', TR[currentLang].fontMinus);
+    setText('fontPlus',  TR[currentLang].fontPlus);
+    setText('fontHelp',  TR[currentLang].fontHelp);
   }
   function setText(id, txt){ var el=document.getElementById(id); if(el){ el.textContent = txt; } }
 
@@ -549,7 +562,7 @@
 
   function getTx(key){ return TR[currentLang].tx[key]; }
 
-  /* ===== Text size: slider logic (added) ===== */
+  /* ===== Text size: slider logic ===== */
   function setFontScale(pct){
     var v = parseInt(pct,10);
     if(isNaN(v)||v<50||v>300) return;
