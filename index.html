@@ -14,10 +14,12 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    html { scroll-behavior: smooth; font-size: 130%; }
+    html { scroll-behavior: smooth; } /* removed 130% increase */
     .error-text{color:#dc2626;font-size:12px;margin-top:.25rem}
     .invalid{outline:0;box-shadow:0 0 0 4px rgba(244,63,94,.25);border-color:#ef4444}
     @media print{html{color-scheme:light}body{background:#fff!important}.no-print{display:none!important}}
+    /* minimal slider tweaks */
+    input[type="range"]{accent-color: currentColor;}
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-indigo-50 text-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 dark:text-slate-100">
@@ -35,6 +37,14 @@
           <span class="mx-1">/</span>
           <button id="theme-dark" type="button" onclick="setTheme('dark')">Dark</button>
         </div>
+        <!-- Text size slider (added) -->
+        <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm border border-slate-300 bg-white dark:bg-slate-800 dark:border-slate-600" title="Text size">
+          <span aria-hidden="true" class="select-none">A−</span>
+          <input id="fontScale" dir="ltr" type="range" min="80" max="170" step="5" value="100" class="w-28 align-middle" oninput="setFontScale(this.value)" />
+          <span aria-hidden="true" class="select-none">A+</span>
+          <span id="fontPct" class="tabular-nums min-w-[3ch] text-xs text-slate-600 dark:text-slate-300">100%</span>
+        </div>
+        <!-- /Text size slider -->
       </div>
     </div>
     <p id="subtitle" class="mt-2 text-slate-600 dark:text-slate-300">اختر الحالات، أدخل عمرك/فئتك العمرية وتاريخ آخر زيارة، وسنحسب أقرب موعد.</p>
@@ -143,7 +153,7 @@
           </div>
         </div>
 
-        <!-- Buttons under the form (Calc + Reset only — Print moved to Result tools) -->
+        <!-- Buttons -->
         <div class="flex flex-wrap items-center gap-3 pt-2">
           <button type="button" id="btnCalc" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" onclick="onCalc()">احسب الزيارة القادمة</button>
           <button type="button" id="resetBtn" class="px-4 py-2 rounded-xl border bg-white text-slate-700 hover:bg-slate-50 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-700" onclick="onReset()">إعادة ضبط</button>
@@ -306,7 +316,7 @@
     setText('lblAgeGroup', TR[currentLang].ageGroup);
     setText('helpAgeGroup', TR[currentLang].helpAgeGroup);
 
-    // Result tools: localize these three buttons
+    // Result tools
     setText('actionsTitle', TR[currentLang].actionsTitle);
     setText('copyBtn', TR[currentLang].copyShare);
     setText('icsBtn', TR[currentLang].addCalendar);
@@ -506,7 +516,7 @@
     document.getElementById('lastVisit').removeAttribute('disabled');
   }
 
-  // Copy / Share: try Web Share API first, fallback to clipboard
+  // Copy / Share
   async function copyShare(){
     var txt = document.getElementById('summary').innerText.trim();
     if(!txt) return;
@@ -515,7 +525,7 @@
         await navigator.share({ title: document.title, text: txt });
         return;
       }
-    }catch(e){ /* fall through to copy */ }
+    }catch(e){}
     try{
       if(navigator.clipboard && navigator.clipboard.writeText){
         await navigator.clipboard.writeText(txt);
@@ -523,7 +533,6 @@
         return;
       }
     }catch(e){}
-    // Legacy fallback
     var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
     try{ document.execCommand('copy'); alert(currentLang==='ar'?'تم النسخ.':'Copied.'); }catch(e){}
     document.body.removeChild(ta);
@@ -540,7 +549,27 @@
 
   function getTx(key){ return TR[currentLang].tx[key]; }
 
-  // Init
+  /* ===== Text size: slider logic (added) ===== */
+  function setFontScale(pct){
+    var v = parseInt(pct,10);
+    if(isNaN(v)||v<50||v>300) return;
+    document.documentElement.style.fontSize = v + '%';
+    var lab = document.getElementById('fontPct'); if(lab) lab.textContent = v + '%';
+    try{ localStorage.setItem('oph_font_scale', String(v)); }catch(e){}
+  }
+  (function initFontScale(){
+    var saved = 100;
+    try{
+      var raw = parseInt(localStorage.getItem('oph_font_scale'),10);
+      if(!isNaN(raw)) saved = raw;
+    }catch(e){}
+    var slider = document.getElementById('fontScale');
+    if(slider){ slider.value = saved; }
+    setFontScale(saved);
+  })();
+  /* ===== End text size ===== */
+
+  // Init language
   setLang('ar');
   </script>
 </body>
