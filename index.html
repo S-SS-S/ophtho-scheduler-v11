@@ -244,7 +244,10 @@
            retLaser:"إجراء ليزر للشبكية" },
       fontMinus:"أ−",
       fontPlus:"أ+",
-      fontHelp:"حرّك المؤشر لضبط حجم النص."
+      fontHelp:"حرّك المؤشر لضبط حجم النص.",
+      /* THEME LABELS (Arabic) */
+      themeLight:"فاتح",
+      themeDark:"غامق"
     },
     en: {
       title:"Ophthalmology Visit Scheduler",
@@ -285,7 +288,10 @@
            retLaser:"Undergone retinal laser" },
       fontMinus:"A−",
       fontPlus:"A+",
-      fontHelp:"Use the slider to adjust text size."
+      fontHelp:"Use the slider to adjust text size.",
+      /* THEME LABELS (English) */
+      themeLight:"Light",
+      themeDark:"Dark"
     }
   };
 
@@ -351,6 +357,10 @@
     setText('fontMinus', TR[currentLang].fontMinus);
     setText('fontPlus',  TR[currentLang].fontPlus);
     setText('fontHelp',  TR[currentLang].fontHelp);
+
+    // THEME BUTTON LABELS
+    setText('theme-light', TR[currentLang].themeLight);
+    setText('theme-dark',  TR[currentLang].themeDark);
   }
   function setText(id, txt){ var el=document.getElementById(id); if(el){ el.textContent = txt; } }
 
