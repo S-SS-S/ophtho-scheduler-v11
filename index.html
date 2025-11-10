@@ -18,7 +18,7 @@
     .error-text{color:#dc2626;font-size:12px;margin-top:.25rem}
     .invalid{outline:0;box-shadow:0 0 0 4px rgba(244,63,94,.25);border-color:#ef4444}
     @media print{html{color-scheme:light}body{background:#fff!important}.no-print{display:none!important}}
-    /* helper for chip checked style without extra CSS frameworks */
+    /* helper for chip checked style */
     .chip{ @apply px-3 py-1.5 rounded-full border text-sm cursor-pointer select-none transition; }
     .chip-off{ @apply bg-white text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600; }
     .chip-on{ @apply bg-indigo-600 text-white border-indigo-600; }
@@ -82,7 +82,7 @@
             <a href="mailto:Sultan.Alhassan@hotmail.com" class="underline break-all" dir="ltr">Sultan.Alhassan@hotmail.com</a>
           </div>
           <div><span id="contactPhoneLabel">الهاتف</span>:
-            <a href="tel:+966564215644" class="underline" dir="ltr">+966564215644</a>
+            <a href="https://wa.me/+966564215644" class="underline" dir="ltr">+966564215644</a>
           </div>
         </div>
       </details>
@@ -263,7 +263,7 @@
            ted:"مرض عين درقي (غريفز)", noRisk:"بالغون بلا عوامل خطورة",
            retLaser:"إجراء ليزر للشبكية" },
       // THEME LABELS
-      themeLight:"فاتح", themeDark:"غامق",
+      themeLight:"فاتح", themeDark:"داكن",
       // Font controls
       fontMinus:"أ−", fontPlus:"أ+", fontReset:"إرجاع 100%",
       presetS:"صغير", presetD:"افتراضي", presetL:"كبير", presetXL:"أكبر",
@@ -559,10 +559,10 @@
     var lab = document.getElementById('fontPct'); if(lab) lab.textContent = v + '%';
     // update chips
     var radios = document.querySelectorAll('input[name="fontPreset"]');
-    var closest = 100, closestDiff = 1e9, target=null;
+    var closestDiff = 1e9, target=null;
     radios.forEach(function(r){
       var val=parseInt(r.value,10), d=Math.abs(val-v);
-      if(d<closestDiff){closestDiff=d; closest=val; target=r;}
+      if(d<closestDiff){closestDiff=d; target=r;}
     });
     radios.forEach(function(r){
       var lab = r.id==='presetS'?'chipS': r.id==='presetD'?'chipD': r.id==='presetL'?'chipL':'chipXL';
@@ -580,8 +580,6 @@
   function decFont(){ var cur=getCurrentScale(); setFontScale(cur-FONT_STEP); }
   function resetFont(){ setFontScale(100); }
   function getCurrentScale(){
-    var fs = parseInt(getComputedStyle(document.documentElement).fontSize,10);
-    // font-size in px relative to browser default 16px — but we track our own:
     var saved=100; try{ var raw=parseInt(localStorage.getItem('oph_font_scale'),10); if(!isNaN(raw)) saved=raw; }catch(e){}
     return saved;
   }
